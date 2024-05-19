@@ -13,7 +13,7 @@ export const Popup = ({ valUpdate, setValUpdate, updateTodo }) => {
   };
 
   return (
-    <div className="h-screen w-full bg-[#0000004F]  absolute top-0 left-0 flex flex-row items-center justify-center">
+    <div className="h-full w-full bg-[#0000004F]  absolute top-0 left-0 flex flex-row items-center justify-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}

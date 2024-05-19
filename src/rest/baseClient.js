@@ -1,7 +1,8 @@
 import axios from "axios";
-import { ACCESS_TOKEN, LOCAL_URL } from "constant";
+import { ACCESS_TOKEN, LOCAL_URL, REFRESH_TOKEN } from "constant";
 import { readCookie } from "utils/cookies.js";
 import { objectToFormData } from "utils/index.js";
+import { jwtDecode } from "jwt-decode";
 
 // calling class oop constant call api
 export default class Client {
@@ -21,6 +22,21 @@ export default class Client {
       config.headers.Authorization = `Bearer ${access_token}`;
       return config;
     });
+    // Chặn các đầu thông tin gửi đến của các client
+    this.client.interceptors.response.use(
+      async function (response) {
+        return response;
+      },
+      (err) => {
+        if (err.response.status === 401) {
+          let refresh_token = readCookie(REFRESH_TOKEN);
+          const payload = { refreshToken: refresh_token };
+          const res = this.client.post("/user/refresh", payload);
+          console.log(res, "err 401 and adding new accesstoken");
+        }
+        return Promise.reject(err);
+      }
+    );
   }
 
   async get(url, payload) {

@@ -1,9 +1,12 @@
-import React from "react";
 import { faPenNib, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { Popup } from "components/popup/Popup.jsx";
+import { ACCESS_TOKEN } from "constant/index.js";
+import { jwtDecode } from "jwt-decode";
+import { useEffect, useState } from "react";
+import { addNew, dlTodo, getAll, update } from "rest/api/todolist.js";
+import { readCookie } from "utils/cookies.js";
 
 function TodoList() {
   const [text, setText] = useState("");
@@ -22,10 +25,7 @@ function TodoList() {
   const addTodo = async () => {
     if (text.length > 100) return;
     try {
-      await axios.post("http://127.0.0.1:8080/todo/addnew", {
-        name: text,
-        isComplete: false,
-      });
+      await addNew({ name: text, isComplete: false });
       getTodoList();
       setText("");
     } catch (error) {
@@ -35,7 +35,7 @@ function TodoList() {
 
   const getTodoList = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8080/todo/getall");
+      const res = await getAll();
       setTodoList((_) => res.data);
     } catch (error) {
       console.log(error);
@@ -44,9 +44,9 @@ function TodoList() {
 
   const updateTodo = async (id, txt) => {
     try {
-      await axios.patch(`http://127.0.0.1:8080/todo/complete/${id}`, {
-        name: txt,
-      });
+      const payload = { name: txt };
+      const res = await update(id, payload);
+      console.log(res);
       getTodoList();
     } catch (error) {
       console.log(error);
@@ -55,7 +55,7 @@ function TodoList() {
 
   const deleteTodo = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8080/todo/delete/${id}`);
+      await dlTodo(id);
       getTodoList();
     } catch (error) {
       console.log(error);
@@ -68,7 +68,7 @@ function TodoList() {
 
   return (
     <>
-      <div className="h-screen w-full bg-lime-400 flex flex-row justify-center items-center relative">
+      <div className="flex-[15_0_0%] w-full bg-lime-400 flex flex-row justify-center items-center relative">
         <div className="w-1/3 h-5/6 rounded-xl bg-lime-500 shadow-xl flex flex-col">
           <div className="flex-[1_0_0]  p-1 pt-3 flex flex-col items-center justify-center gap-2">
             <div className="h-2/4 w-11/12 rounded-xl border-solid border-2 border-[#69ad28]">
@@ -91,13 +91,15 @@ function TodoList() {
           <div className="flex-[5_0_0] px-2 py-3 overflow-x-hidden overflow-y-scroll scrollbar">
             <div className="flex flex-col items-center justify-start gap-2 h-auto w-full">
               {todoList.length > 0
-                ? todoList.map((vl, idx) => (
+                ? todoList.map((vl) => (
                     <div
                       key={vl._id}
                       className="shadow-xl rounded-xl cursor-pointer indent-1 py-1 px-2 w-full min-h-14 font-mono text-left bg-[#F3CA52] transition duration-1000 ease-in-out flex flex-row items-center"
                     >
                       <div className="flex-[3_0_0] h-auto overflow-hidden ">
-                        <p className="overflow-hidden break-words">{vl.name}</p>
+                        <p className="overflow-hidden break-words line-through">
+                          {vl.name}
+                        </p>
                       </div>
                       <div className="flex-[1_0_0] flex h-full flex-row items-center justify-around overflow-hidden">
                         <FontAwesomeIcon

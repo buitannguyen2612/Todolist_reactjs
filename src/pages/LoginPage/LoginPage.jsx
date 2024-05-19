@@ -3,6 +3,7 @@ import peopleImg from "images/peopleWork.jpg";
 import { useState } from "react";
 import { loginApi } from "rest/api/auth.js";
 import { authenAction } from "../../redux/authenSlice.js";
+import { Link } from "react-router-dom";
 
 function LoginPage() {
   const { login } = useActions(authenAction);
@@ -12,11 +13,11 @@ function LoginPage() {
 
   const fetchLogin = async (e) => {
     try {
+      console.log("chay api");
       const res = await loginApi({ userName: userName, password: password });
-      console.log(res);
-      login();
+      login(res.data);
     } catch (error) {
-      console.log(error);
+      console.log("login err", error);
     }
   };
 
@@ -63,9 +64,9 @@ function LoginPage() {
             >
               Login
             </button>
-            <a href="#" className="underline text-[#fff]">
+            <Link className="underline text-[#fff]" to="/register">
               register
-            </a>
+            </Link>
           </div>
         </div>
       </div>

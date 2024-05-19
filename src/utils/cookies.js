@@ -2,12 +2,11 @@
 function createCookie(name, value, days) {
   let expires;
   if (days) {
-    let date = new Date();
-    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-    expires = ";expires=" + date.toGMTString();
+    expires = ";expires=" + days;
   } else expires = "";
   document.cookie = name + "=" + value + expires + "; path=/";
 }
+
 function readCookie(name) {
   if (typeof document === "undefined") return null;
   let nameEQ = name + "=";
@@ -22,8 +21,16 @@ function readCookie(name) {
   return null;
 }
 
+function getCookieValue(name) {
+  const regex = new RegExp(`(^| )${name}=([^;]+)`);
+  const match = document.cookie.match(regex);
+  if (match) {
+    return match[2];
+  }
+}
+
 function clearCookie(name) {
   createCookie(name, "", -1);
 }
 
-module.exports = { createCookie, clearCookie, readCookie };
+module.exports = { createCookie, clearCookie, readCookie, getCookieValue };

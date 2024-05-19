@@ -1,7 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import registerImg from "images/registerImg.png";
+import { Link, useNavigate } from "react-router-dom";
+import { registerApi } from "rest/api/auth.js";
 
 export default function Register() {
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
+  const [password, setPassWord] = useState("");
+
+  const registerTriger = async () => {
+    try {
+      const payload = { userName: userName, password: password };
+      const res = await registerApi(payload);
+      if (res.status === 201) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="w-full h-screen relative flex flex-row items-center justify-center">
       <div
@@ -20,6 +38,8 @@ export default function Register() {
               className="h-full w-full outline-none border-none pl-2 rounded-xl"
               type="text"
               placeholder="User name"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
             />
           </div>
           <div className="w-64 h-8 rounded-xl">
@@ -27,15 +47,20 @@ export default function Register() {
               className="h-full w-full outline-none border-none pl-2 rounded-xl"
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassWord(e.target.value)}
             />
           </div>
           <div className="flex flex-row items-center justify-center gap-10">
-            <button className="p-1 px-2 rounded-xl bg-[#F4538A] text-[#FFF] font-semibold hover:bg-[#FFB5DA] transition-colors duration-75 active:bg-[#FF3EA5]">
+            <button
+              onClick={() => registerTriger()}
+              className="p-1 px-2 rounded-xl bg-[#F4538A] text-[#FFF] font-semibold hover:bg-[#FFB5DA] transition-colors duration-75 active:bg-[#FF3EA5]"
+            >
               Sign up
             </button>
-            <a href="#" className="underline text-[#fff]">
+            <Link to="/" className="underline text-[#fff]">
               back to login
-            </a>
+            </Link>
           </div>
         </div>
       </div>

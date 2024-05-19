@@ -7,3 +7,9 @@ export function objectToFormData(obj) {
 
   return formData;
 }
+
+export const parseDiffDays = (timestamp) => {
+  let expiresMilisecond = timestamp * 1000;
+  const expiresDate = new Date(expiresMilisecond);
+  return expiresDate.toUTCString();
+};
