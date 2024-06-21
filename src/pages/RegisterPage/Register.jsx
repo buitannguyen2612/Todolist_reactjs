@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import registerImg from "images/registerImg.png";
 import { Link, useNavigate } from "react-router-dom";
 import { registerApi } from "rest/api/auth.js";
+import { SNACKBAR_SEVERITY, snackBarAction } from "../../redux/snackbar.js";
+import useActions from "hooks/useAction.js";
 
 export default function Register() {
+  const { show } = useActions(snackBarAction);
+
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [password, setPassWord] = useState("");
@@ -13,10 +17,19 @@ export default function Register() {
       const payload = { userName: userName, password: password };
       const res = await registerApi(payload);
       if (res.status === 201) {
+        show({
+          message: "Your account created",
+          severity: SNACKBAR_SEVERITY.SUCCESS,
+          autoHideDuration: 10000,
+        });
         navigate("/");
       }
     } catch (error) {
-      console.log(error);
+      show({
+        message: "Try another username or passoword",
+        severity: SNACKBAR_SEVERITY.ERROR,
+        autoHideDuration: 10000,
+      });
     }
   };
 

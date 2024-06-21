@@ -1,27 +1,38 @@
-import { faPenNib, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPenNib,
+  faTrash,
+  faCheck,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import { Popup } from "components/popup/Popup.jsx";
-import { ACCESS_TOKEN } from "constant/index.js";
-import { jwtDecode } from "jwt-decode";
+import useActions from "hooks/useAction.js";
 import { useEffect, useState } from "react";
-import { addNew, dlTodo, getAll, update } from "rest/api/todolist.js";
-import { readCookie } from "utils/cookies.js";
-
+import { SNACKBAR_SEVERITY, snackBarAction } from "../../redux/snackbar.js";
+import {
+  addNew,
+  completeTodo,
+  dlTodo,
+  getAll,
+  uncompleteTodo,
+  update,
+} from "rest/api/todolist.js";
 function TodoList() {
+  const { show } = useActions(snackBarAction);
+
   const [text, setText] = useState("");
   const [todoList, setTodoList] = useState([]);
   const [valueUpdate, setValUpdate] = useState({
     id: null,
     text: null,
   });
-
   const handlePopup = (id, txt) => {
     setValUpdate({
       id: id,
       text: txt,
     });
   };
+
   const addTodo = async () => {
     if (text.length > 100) return;
     try {
@@ -45,11 +56,19 @@ function TodoList() {
   const updateTodo = async (id, txt) => {
     try {
       const payload = { name: txt };
-      const res = await update(id, payload);
-      console.log(res);
+      await update(id, payload);
+      show({
+        message: "Update successfull",
+        severity: SNACKBAR_SEVERITY.SUCCESS,
+        autoHideDuration: 10000,
+      });
       getTodoList();
     } catch (error) {
-      console.log(error);
+      show({
+        message: "Update fail",
+        severity: SNACKBAR_SEVERITY.ERROR,
+        autoHideDuration: 10000,
+      });
     }
   };
 
@@ -57,8 +76,43 @@ function TodoList() {
     try {
       await dlTodo(id);
       getTodoList();
+      show({
+        message: "Delete successfull",
+        severity: SNACKBAR_SEVERITY.SUCCESS,
+        autoHideDuration: 10000,
+      });
     } catch (error) {
-      console.log(error);
+      show({
+        message: "Delete fail",
+        severity: SNACKBAR_SEVERITY.ERROR,
+        autoHideDuration: 10000,
+      });
+    }
+  };
+
+  const updateComplete = async (id) => {
+    try {
+      await completeTodo(id, { isComplete: true });
+      getTodoList();
+    } catch (error) {
+      show({
+        message: "Update fail",
+        severity: SNACKBAR_SEVERITY.ERROR,
+        autoHideDuration: 10000,
+      });
+    }
+  };
+
+  const unComplete = async (id) => {
+    try {
+      await uncompleteTodo(id, { isComplete: false });
+      getTodoList();
+    } catch (error) {
+      show({
+        message: "Update fail",
+        severity: SNACKBAR_SEVERITY.ERROR,
+        autoHideDuration: 10000,
+      });
     }
   };
 
@@ -97,11 +151,28 @@ function TodoList() {
                       className="shadow-xl rounded-xl cursor-pointer indent-1 py-1 px-2 w-full min-h-14 font-mono text-left bg-[#F3CA52] transition duration-1000 ease-in-out flex flex-row items-center"
                     >
                       <div className="flex-[3_0_0] h-auto overflow-hidden ">
-                        <p className="overflow-hidden break-words line-through">
+                        <p
+                          className={`overflow-hidden break-words ${
+                            vl.isComplete === true ? "line-through" : ""
+                          }`}
+                        >
                           {vl.name}
                         </p>
                       </div>
                       <div className="flex-[1_0_0] flex h-full flex-row items-center justify-around overflow-hidden">
+                        {vl.isComplete === false ? (
+                          <FontAwesomeIcon
+                            icon={faCheck}
+                            onClick={() => updateComplete(vl._id)}
+                            className="transition duration-100 ease-linear text-[20px] text-[#F4538A] hover:text-[#fff] hover:scale-105 "
+                          />
+                        ) : (
+                          <FontAwesomeIcon
+                            icon={faXmark}
+                            onClick={() => unComplete(vl._id)}
+                            className="transition duration-100 ease-linear text-[20px] text-[#F4538A] hover:text-[#fff] hover:scale-105 "
+                          />
+                        )}
                         <FontAwesomeIcon
                           icon={faPenNib}
                           onClick={() => handlePopup(vl._id, vl.name)}

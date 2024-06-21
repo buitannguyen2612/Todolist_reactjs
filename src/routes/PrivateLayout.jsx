@@ -1,6 +1,5 @@
 import useShallowEquelSelector from "hooks/userShallowEquelSelector.js";
-import React, { useEffect } from "react";
-import { Outlet, useLocation, Navigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 // Dưới đây là các điều kiện xử lý chặn chuyển trang đối với các trang đã được truy cập sau khi đăng nhập
 function PrivateLayout() {

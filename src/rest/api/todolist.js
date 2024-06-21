@@ -17,3 +17,11 @@ export const update = async (id, payload) => {
 export const addNew = async (payload) => {
   return http.post("todo/addnew", payload);
 };
+
+export const completeTodo = async (id, payload) => {
+  return http.patch(`todo/complete/${id}`, payload);
+};
+
+export const uncompleteTodo = async (id, payload) => {
+  return http.patch(`todo/uncomplete/${id}`, payload);
+};

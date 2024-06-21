@@ -4,9 +4,11 @@ import { useState } from "react";
 import { loginApi } from "rest/api/auth.js";
 import { authenAction } from "../../redux/authenSlice.js";
 import { Link } from "react-router-dom";
+import { SNACKBAR_SEVERITY, snackBarAction } from "../../redux/snackbar.js";
 
 function LoginPage() {
   const { login } = useActions(authenAction);
+  const { show } = useActions(snackBarAction);
 
   const [userName, setUserName] = useState("");
   const [password, setPassWord] = useState("");
@@ -16,8 +18,17 @@ function LoginPage() {
       console.log("chay api");
       const res = await loginApi({ userName: userName, password: password });
       login(res.data);
+      show({
+        message: "Login successfull",
+        severity: SNACKBAR_SEVERITY.SUCCESS,
+        autoHideDuration: 10000,
+      });
     } catch (error) {
-      console.log("login err", error);
+      show({
+        message: "Login error",
+        severity: SNACKBAR_SEVERITY.ERROR,
+        autoHideDuration: 10000,
+      });
     }
   };
 
