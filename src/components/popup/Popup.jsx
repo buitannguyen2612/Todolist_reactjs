@@ -30,6 +30,7 @@ export const Popup = ({ valUpdate, setValUpdate, updateTodo }) => {
             name="w3review"
             rows="4"
             cols="50"
+            value={currentTxt}
             onChange={(e) => setCurrentTxt(e.target.value)}
           >
             {valUpdate.text}

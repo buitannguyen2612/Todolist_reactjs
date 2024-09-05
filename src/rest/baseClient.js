@@ -1,8 +1,7 @@
 import axios from "axios";
 import { ACCESS_TOKEN, LOCAL_URL, REFRESH_TOKEN } from "constant";
-import { readCookie } from "utils/cookies.js";
-import { objectToFormData } from "utils/index.js";
-import { jwtDecode } from "jwt-decode";
+import { createCookie, readCookie } from "utils/cookies.js";
+import { objectToFormData, parseDiffDays } from "utils/index.js";
 
 // calling class oop constant call api
 export default class Client {
@@ -14,7 +13,6 @@ export default class Client {
         "Content-Type": "application/json",
       },
     });
-
     // chặn việc gửi yêu cầu đi, và thêm vào header cho nó có bên beartoken
     this.client.interceptors.request.use(async (config) => {
       let access_token = readCookie(ACCESS_TOKEN);
@@ -31,8 +29,14 @@ export default class Client {
         if (err.response.status === 401) {
           let refresh_token = readCookie(REFRESH_TOKEN);
           const payload = { refreshToken: refresh_token };
-          const res = this.client.post("/user/refresh", payload);
-          console.log(res, "err 401 and adding new accesstoken");
+          this.client
+            .post("/user/refresh", payload)
+            .then((data) => {
+              const res = data.data;
+              const day = parseDiffDays(res.tokenLifespan);
+              createCookie(ACCESS_TOKEN, res.accessToken, day);
+            })
+            .catch((err) => console.log(err));
         }
         return Promise.reject(err);
       }

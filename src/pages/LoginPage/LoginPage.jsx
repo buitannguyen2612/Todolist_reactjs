@@ -13,10 +13,21 @@ function LoginPage() {
   const [userName, setUserName] = useState("");
   const [password, setPassWord] = useState("");
 
-  const fetchLogin = async (e) => {
+  const authLogin = (e) => {
+    if (userName === "" || password === "") {
+      show({
+        message: "Don't leave the input empty!!!",
+        severity: SNACKBAR_SEVERITY.ERROR,
+        autoHideDuration: 10000,
+      });
+      return;
+    }
+    fetchLogin(userName, password);
+  };
+
+  const fetchLogin = async (uername, password) => {
     try {
-      console.log("chay api");
-      const res = await loginApi({ userName: userName, password: password });
+      const res = await loginApi({ userName: uername, password: password });
       login(res.data);
       show({
         message: "Login successfull",
@@ -25,7 +36,7 @@ function LoginPage() {
       });
     } catch (error) {
       show({
-        message: "Login error",
+        message: "Password or username is wrong!!",
         severity: SNACKBAR_SEVERITY.ERROR,
         autoHideDuration: 10000,
       });
@@ -70,7 +81,7 @@ function LoginPage() {
           </form>
           <div className="flex flex-row items-center justify-center gap-10">
             <button
-              onClick={(e) => fetchLogin(e)}
+              onClick={(e) => authLogin(e)}
               className="p-1 px-2 rounded-xl bg-[#F4538A] text-[#FFF] font-semibold hover:bg-[#FFB5DA] transition-colors duration-75 active:bg-[#FF3EA5]"
             >
               Login
